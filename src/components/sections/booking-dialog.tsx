@@ -19,16 +19,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from '@/lib/utils';
-import { GoogleAddressSearch } from '@/components/ui/google-address-search';
-import { motion } from 'framer-motion';
+import { MapboxAddressSearch } from '@/components/ui/mapbox-address-search';
+import { AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const BookingDialog: React.FC = () => {
   const { t } = useLanguage();
   const { isOpen, close, initialData } = useBooking();
   const [mounted, setMounted] = useState(false);
   
-  const [isBooked, setIsBooked] = useState(false);
-  const [pickupAddress, setPickupAddress] = useState('');
+    const [isBooked, setIsBooked] = useState(false);
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [pickupAddress, setPickupAddress] = useState('');
   const [dropoffAddress, setDropoffAddress] = useState('');
   const [selectedService, setSelectedService] = useState('taxi');
   const [selectedCar, setSelectedCar] = useState('standard');
@@ -77,12 +79,13 @@ const BookingDialog: React.FC = () => {
     setIsBooked(true);
   };
 
-  const handleReset = () => {
-    setIsBooked(false);
-    close();
-    setStep(1);
-    setProgress(2);
-  };
+    const handleReset = () => {
+      setIsBooked(false);
+      setShowCancelConfirm(false);
+      close();
+      setStep(1);
+      setProgress(2);
+    };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleReset()}>
@@ -92,12 +95,12 @@ const BookingDialog: React.FC = () => {
       )}>
           {isBooked ? (
             <div className="p-6 flex flex-col items-center animate-in zoom-in duration-300">
-              <button 
-                onClick={handleReset}
-                className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:text-slate-600"
-              >
-                <IconX size={16} />
-              </button>
+                <button 
+                  onClick={() => setShowCancelConfirm(true)}
+                  className="absolute right-4 top-4 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 hover:text-slate-600"
+                >
+                  <IconX size={16} />
+                </button>
 
               <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-blue-100">
                 <IconCheck size={20} strokeWidth={3} />
@@ -140,16 +143,61 @@ const BookingDialog: React.FC = () => {
                  </div>
               </div>
 
-              <div className="mt-8 flex items-center justify-between w-full">
-                 <span className="text-[8px] font-black uppercase tracking-widest text-slate-300">TAXI LOCAL AGRÉÉ</span>
-                 <button 
-                  onClick={handleReset}
-                  className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline"
-                 >
-                   Fermer
-                 </button>
+                <div className="mt-8 flex items-center justify-between w-full">
+                   <span className="text-[8px] font-black uppercase tracking-widest text-slate-300">TAXI LOCAL AGRÉÉ</span>
+                   <button 
+                    onClick={() => setShowCancelConfirm(true)}
+                    className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:underline"
+                   >
+                     Fermer
+                   </button>
+                </div>
+
+                <AnimatePresence>
+                  {showCancelConfirm && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute inset-0 z-[100] bg-white/95 backdrop-blur-md flex items-center justify-center p-8 text-center"
+                    >
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="max-w-[320px]"
+                      >
+                        <div className="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                          <AlertTriangle size={32} strokeWidth={2.5} />
+                        </div>
+                        
+                        <h3 className="text-xl font-black italic tracking-tighter uppercase leading-tight mb-3 text-slate-900">
+                          Are you sure you want to cancel this taxi booking?
+                        </h3>
+                        
+                        <p className="text-slate-500 font-bold text-[10px] mb-8 leading-relaxed uppercase tracking-widest">
+                          The taxi will be cancelled and the driver will be notified
+                        </p>
+                        
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={handleReset}
+                            className="w-full bg-red-600 text-white h-12 rounded-xl font-black text-xs italic tracking-tighter uppercase hover:bg-red-700 active:scale-[0.98] transition-all shadow-lg shadow-red-100"
+                          >
+                            Cancel Booking
+                          </button>
+                          <button
+                            onClick={() => setShowCancelConfirm(false)}
+                            className="w-full bg-slate-100 text-slate-900 h-12 rounded-xl font-black text-xs italic tracking-tighter uppercase hover:bg-slate-200 active:scale-[0.98] transition-all"
+                          >
+                            Keep Booking
+                          </button>
+                        </div>
+                      </motion.div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </div>
           ) : (
           <div className="flex flex-col overflow-hidden">
             {/* Header with brand color */}
@@ -194,35 +242,35 @@ const BookingDialog: React.FC = () => {
                   </div>
 
                   {/* Route Inputs */}
-                  <div className="relative space-y-4">
-                    <div className="absolute left-[23px] top-10 bottom-10 w-0.5 bg-slate-100 z-0" />
-                    
-                    <div className="flex items-center gap-4 relative z-10">
-                      <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-sm">
-                        <div className="w-2.5 h-2.5 rounded-full bg-blue-500 ring-4 ring-blue-50" />
+                    <div className="relative space-y-4">
+                      <div className="absolute left-[23px] top-10 bottom-10 w-0.5 bg-slate-100 z-0" />
+                      
+                      <div className="flex items-center gap-4 relative z-20">
+                        <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-sm">
+                          <div className="w-2.5 h-2.5 rounded-full bg-blue-500 ring-4 ring-blue-50" />
+                        </div>
+                        <div className="flex-1">
+                            <MapboxAddressSearch 
+                              placeholder={t.hero.pickupPlaceholder}
+                              onSelect={(address) => setPickupAddress(address)}
+                              defaultValue={pickupAddress}
+                            />
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <GoogleAddressSearch 
-                          placeholder={t.hero.pickupPlaceholder}
-                          onSelect={(address) => setPickupAddress(address)}
-                          defaultValue={pickupAddress}
-                        />
+  
+                      <div className="flex items-center gap-4 relative z-10">
+                        <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-sm">
+                          <div className="w-2.5 h-2.5 bg-black" />
+                        </div>
+                          <div className="flex-1 min-w-0">
+                            <MapboxAddressSearch 
+                              placeholder={t.hero.dropoffPlaceholder}
+                              onSelect={(address) => setDropoffAddress(address)}
+                              defaultValue={dropoffAddress}
+                            />
+                          </div>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-4 relative z-10">
-                      <div className="w-12 h-12 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-sm">
-                        <div className="w-2.5 h-2.5 bg-black" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <GoogleAddressSearch 
-                          placeholder={t.hero.dropoffPlaceholder}
-                          onSelect={(address) => setDropoffAddress(address)}
-                          defaultValue={dropoffAddress}
-                        />
-                      </div>
-                    </div>
-                  </div>
 
                   {/* Car selection */}
                   <div className="space-y-4">

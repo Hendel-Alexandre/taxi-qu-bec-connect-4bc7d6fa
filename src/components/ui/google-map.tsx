@@ -29,6 +29,13 @@ const isValidCoord = (v: any): v is { lat: number; lng: number } => {
   );
 };
 
+const SafePin = (props: any) => {
+  const pinProps = Object.fromEntries(
+    Object.entries(props).filter(([key]) => !key.startsWith('data-'))
+  );
+  return <Pin {...pinProps} />;
+};
+
 const MapContent = ({ pickupLocation, destinationLocation, onRouteData }: GoogleMapProps) => {
   const map = useMap();
   const routesLibrary = useMapsLibrary('routes');
@@ -98,12 +105,12 @@ const MapContent = ({ pickupLocation, destinationLocation, onRouteData }: Google
     <>
       {isValidCoord(pickupLocation) && (
         <AdvancedMarker position={{ lat: pickupLocation.lat, lng: pickupLocation.lng }}>
-          <Pin background={'#2563eb'} borderColor={'#ffffff'} glyphColor={'#ffffff'} scale={1.2} />
+          <SafePin background={'#2563eb'} borderColor={'#ffffff'} glyphColor={'#ffffff'} scale={1.2} />
         </AdvancedMarker>
       )}
       {isValidCoord(destinationLocation) && (
         <AdvancedMarker position={{ lat: destinationLocation.lat, lng: destinationLocation.lng }}>
-          <Pin background={'#000000'} borderColor={'#ffffff'} glyphColor={'#ffffff'} scale={1.2} />
+          <SafePin background={'#000000'} borderColor={'#ffffff'} glyphColor={'#ffffff'} scale={1.2} />
         </AdvancedMarker>
       )}
     </>

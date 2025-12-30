@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { IconPhone, IconAlertCircle } from '@tabler/icons-react';
 import { useLanguage } from '@/lib/language-context';
 import { useBooking } from '@/hooks/use-booking';
-import { GoogleAddressSearch } from '@/components/ui/google-address-search';
+import { MapboxAddressSearch } from '@/components/ui/mapbox-address-search';
 
 const HeroSection: React.FC = () => {
     const { t } = useLanguage();
@@ -74,10 +74,10 @@ const HeroSection: React.FC = () => {
                 <div className="bg-white/95 backdrop-blur-md p-2 rounded-2xl shadow-2xl w-full max-w-xl border border-white/20">
                   <div className="flex flex-col md:flex-row gap-2 relative">
                     <div className="flex-1">
-                      <GoogleAddressSearch 
-                        placeholder={t.hero.pickupPlaceholder}
-                        onSelect={(address) => setPickupAddress(address)}
-                      />
+                        <MapboxAddressSearch 
+                          placeholder={t.hero.pickupPlaceholder}
+                          onSelect={(address) => setPickupAddress(address)}
+                        />
                       {error && (
                         <div className="absolute top-full left-0 right-0 mt-3 bg-red-50 text-red-600 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg border border-red-100">
                           <IconAlertCircle size={16} />

@@ -97,6 +97,16 @@ export default function HistoryPage() {
     }
   };
 
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'completed': return 'Terminé';
+      case 'cancelled': return 'Annulé';
+      case 'pending': return 'En attente';
+      case 'in_progress': return 'En cours';
+      default: return status;
+    }
+  };
+
   const openRating = (ride: Ride) => {
     setRatingRide(ride);
     setRatingValue(5);
@@ -177,10 +187,10 @@ export default function HistoryPage() {
                   </h3>
                   <div className="flex items-center gap-2 text-xs text-gray-500 font-medium uppercase tracking-tight">
                     <span>{new Date(ride.created_at).toLocaleDateString('fr-CA', { day: 'numeric', month: 'short' })}</span>
-                    <span>•</span>
-                    <span className={`px-2 py-0.5 rounded-full border ${getStatusColor(ride.status)}`}>
-                      {ride.status === 'completed' ? 'Terminé' : ride.status}
-                    </span>
+                      <span>•</span>
+                      <span className={`px-2 py-0.5 rounded-full border ${getStatusColor(ride.status)}`}>
+                        {getStatusLabel(ride.status)}
+                      </span>
                   </div>
                 </div>
               </div>

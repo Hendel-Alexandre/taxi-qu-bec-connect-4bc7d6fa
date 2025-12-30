@@ -15,16 +15,22 @@ import {
   Tag,
   Search,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Loader2,
+  AlertCircle
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+
+import { MapboxAddressSearch } from '@/components/ui/mapbox-address-search';
 
 type Address = {
   id: string;
   label: string;
   address: string;
   address_type: string;
+  lat?: number;
+  lng?: number;
 };
 
 const addressIcons: Record<string, React.ReactNode> = {
@@ -46,10 +52,14 @@ export default function AddressesPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     label: '',
     address: '',
     address_type: 'custom',
+    lat: null as number | null,
+    lng: null as number | null,
   });
   const supabase = createClient();
   const router = useRouter();
@@ -62,12 +72,13 @@ export default function AddressesPage() {
         return;
       }
 
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('favorite_addresses')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true });
 
+      if (error) throw error;
       if (data) setAddresses(data);
     } catch (error) {
       console.error('Error fetching addresses:', error);
@@ -82,54 +93,108 @@ export default function AddressesPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    setError(null);
+    setSaving(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/auth');
+        return;
+      }
 
-    if (editingAddress) {
-      await supabase
-        .from('favorite_addresses')
-        .update({
+      // If it's home or work and we're not editing an existing one of that type, 
+      // check if one already exists to update it instead of inserting a duplicate
+      if (!editingAddress && (formData.address_type === 'home' || formData.address_type === 'work')) {
+        const existing = addresses.find(a => a.address_type === formData.address_type);
+        if (existing) {
+          const { error: updateErr } = await supabase
+            .from('favorite_addresses')
+            .update({
+              label: formData.label,
+              address: formData.address,
+              lat: formData.lat,
+              lng: formData.lng,
+            })
+            .eq('id', existing.id);
+          
+          if (updateErr) throw updateErr;
+          setShowModal(false);
+          fetchAddresses();
+          return;
+        }
+      }
+
+      if (editingAddress) {
+        const { error: updateErr } = await supabase
+          .from('favorite_addresses')
+          .update({
+            label: formData.label,
+            address: formData.address,
+            address_type: formData.address_type,
+            lat: formData.lat,
+            lng: formData.lng,
+          })
+          .eq('id', editingAddress.id);
+        
+        if (updateErr) throw updateErr;
+      } else {
+        const { error: insertErr } = await supabase.from('favorite_addresses').insert({
+          user_id: user.id,
           label: formData.label,
           address: formData.address,
           address_type: formData.address_type,
-        })
-        .eq('id', editingAddress.id);
-    } else {
-      await supabase.from('favorite_addresses').insert({
-        user_id: user.id,
-        label: formData.label,
-        address: formData.address,
-        address_type: formData.address_type,
-      });
-    }
+          lat: formData.lat,
+          lng: formData.lng,
+        });
+        
+        if (insertErr) throw insertErr;
+      }
 
-    setShowModal(false);
-    setEditingAddress(null);
-    setFormData({ label: '', address: '', address_type: 'custom' });
-    fetchAddresses();
+      setShowModal(false);
+      setEditingAddress(null);
+      setFormData({ label: '', address: '', address_type: 'custom', lat: null, lng: null });
+      fetchAddresses();
+    } catch (err: any) {
+      console.error('Error saving address:', err);
+      setError(err.message || "Erreur lors de l'enregistrement");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    await supabase.from('favorite_addresses').delete().eq('id', id);
-    fetchAddresses();
+    try {
+      const { error } = await supabase.from('favorite_addresses').delete().eq('id', id);
+      if (error) throw error;
+      fetchAddresses();
+    } catch (err) {
+      console.error('Error deleting address:', err);
+    }
   };
 
   const openEditModal = (address: Address) => {
+    setError(null);
     setEditingAddress(address);
     setFormData({
       label: address.label,
       address: address.address,
       address_type: address.address_type,
+      lat: address.lat || null,
+      lng: address.lng || null,
     });
     setShowModal(true);
   };
 
   const openNewModal = (type: string = 'custom') => {
+    setError(null);
     setEditingAddress(null);
     setFormData({
       label: type === 'custom' ? '' : addressLabels[type],
       address: '',
       address_type: type,
+      lat: null,
+      lng: null,
     });
     setShowModal(true);
   };
@@ -273,42 +338,55 @@ export default function AddressesPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Nom du lieu</label>
-                  <input
-                    type="text"
-                    value={formData.label}
-                    onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                    className="w-full p-4 bg-[#F3F3F3] border-none rounded-xl text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black outline-none"
-                    placeholder="Ex: Maison, Bureau..."
-                    required
-                  />
-                </div>
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm font-medium">
+                    <AlertCircle className="w-5 h-5 shrink-0" />
+                    {error}
+                  </div>
+                )}
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Adresse</label>
-                  <div className="relative">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Nom du lieu</label>
                     <input
                       type="text"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      className="w-full p-4 pl-12 bg-[#F3F3F3] border-none rounded-xl text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black outline-none"
-                      placeholder="Saisissez l'adresse"
+                      value={formData.label}
+                      onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+                      className="w-full p-4 bg-[#F3F3F3] border-none rounded-xl text-black placeholder:text-gray-400 focus:ring-2 focus:ring-black outline-none"
+                      placeholder="Ex: Maison, Bureau..."
                       required
                     />
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black" />
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-black text-white rounded-xl py-4 font-bold transition-all hover:bg-gray-800 flex items-center justify-center gap-2"
-                >
-                  <Check className="w-5 h-5" />
-                  Enregistrer
-                </button>
-              </form>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Adresse</label>
+                    <MapboxAddressSearch
+                      placeholder="Rechercher une adresse..."
+                      defaultValue={formData.address}
+                      onSelect={(addr, loc) => {
+                        setFormData({ 
+                          ...formData, 
+                          address: addr,
+                          lat: loc.lat,
+                          lng: loc.lng
+                        });
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={!formData.address || !formData.label || saving}
+                    className="w-full bg-black text-white rounded-xl py-4 font-bold transition-all hover:bg-gray-800 flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {saving ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Check className="w-5 h-5" />
+                    )}
+                    {saving ? 'Enregistrement...' : 'Enregistrer'}
+                  </button>
+                </form>
             </motion.div>
           </motion.div>
         )}
