@@ -144,21 +144,23 @@ export default function AuthPage() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
 
-                <button
-                  onClick={() => router.push('/admin')}
-                  className="w-full bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-100 rounded-2xl p-5 flex items-center justify-between transition-all duration-300 group shadow-sm hover:shadow-md"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="text-left">
-                      <div className="font-semibold text-lg">Portail Organisation</div>
-                      <div className="text-gray-500 text-sm">Accès administrateur et gestion</div>
-                    </div>
+              <button
+                onClick={() => setShowOrgModal(true)}
+                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-400 rounded-2xl p-5 flex items-center justify-between transition-all duration-300 cursor-not-allowed"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
+                    <Building2 className="w-6 h-6" />
                   </div>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-primary" />
-                </button>
+                  <div className="text-left">
+                    <div className="font-semibold text-lg flex items-center gap-2">
+                      Portail Organisation
+                      <Lock className="w-4 h-4" />
+                    </div>
+                    <div className="text-gray-400 text-sm">Bientôt disponible</div>
+                  </div>
+                </div>
+              </button>
             </motion.div>
           )}
 
