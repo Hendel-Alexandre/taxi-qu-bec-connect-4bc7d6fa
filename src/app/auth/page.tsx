@@ -145,7 +145,7 @@ export default function AuthPage() {
               </button>
 
                 <button
-                  onClick={() => router.push('/admin/login')}
+                  onClick={() => router.push('/admin')}
                   className="w-full bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-100 rounded-2xl p-5 flex items-center justify-between transition-all duration-300 group shadow-sm hover:shadow-md"
                 >
                   <div className="flex items-center gap-4">
@@ -153,10 +153,8 @@ export default function AuthPage() {
                       <Building2 className="w-6 h-6 text-primary" />
                     </div>
                     <div className="text-left">
-                      <div className="font-semibold text-lg flex items-center gap-2">
-                        Portail Organisation
-                      </div>
-                      <div className="text-gray-500 text-sm">Gérez votre flotte et vos opérations</div>
+                      <div className="font-semibold text-lg">Portail Organisation</div>
+                      <div className="text-gray-500 text-sm">Accès administrateur et gestion</div>
                     </div>
                   </div>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-primary" />
