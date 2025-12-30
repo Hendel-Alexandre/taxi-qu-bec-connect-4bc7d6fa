@@ -145,21 +145,19 @@ export default function AuthPage() {
               </button>
 
               <button
-                onClick={() => setShowOrgModal(true)}
-                className="w-full bg-gray-100 hover:bg-gray-200 text-gray-400 rounded-2xl p-5 flex items-center justify-between transition-all duration-300 cursor-not-allowed"
+                onClick={() => setMode('login')}
+                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl p-5 flex items-center justify-between transition-all duration-300 group shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
-                    <Building2 className="w-6 h-6" />
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Building2 className="w-6 h-6 text-white" />
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-lg flex items-center gap-2">
-                      Portail Organisation
-                      <Lock className="w-4 h-4" />
-                    </div>
-                    <div className="text-gray-400 text-sm">Bientôt disponible</div>
+                    <div className="font-semibold text-lg">Portail Organisation</div>
+                    <div className="text-white/70 text-sm">Gérez votre flotte et vos chauffeurs</div>
                   </div>
                 </div>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </motion.div>
           )}
@@ -346,42 +344,6 @@ export default function AuthPage() {
           © {new Date().getFullYear()} Taxi Québec. Tous droits réservés.
         </p>
       </motion.div>
-
-      {showOrgModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-          onClick={() => setShowOrgModal(false)}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-2xl p-8 max-w-sm w-full text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Building2 className="w-8 h-8 text-primary" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Bientôt disponible</h2>
-            <p className="text-gray-500 mb-6">
-              Le portail organisation sera disponible prochainement. Contactez notre répartition pour plus d&apos;informations.
-            </p>
-            <a
-              href="tel:+14185251212"
-              className="block w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-3 font-semibold transition-all"
-            >
-              Appeler la répartition
-            </a>
-            <button
-              onClick={() => setShowOrgModal(false)}
-              className="mt-3 w-full text-gray-500 hover:text-gray-700 py-2"
-            >
-              Fermer
-            </button>
-          </motion.div>
-        </motion.div>
-      )}
     </div>
   );
 }
