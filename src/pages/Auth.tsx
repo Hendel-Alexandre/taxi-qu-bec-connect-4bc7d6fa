@@ -1,22 +1,17 @@
-"use client";
-
 import React, { useState } from 'react';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { User, Building2, Lock, ArrowRight, Mail, Phone, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
+import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 type AuthMode = 'select' | 'login' | 'register';
 
-export default function AuthPage() {
+export default function Auth() {
   const [mode, setMode] = useState<AuthMode>('select');
-  const [showOrgModal, setShowOrgModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
-  const supabase = createClient();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -44,7 +39,7 @@ export default function AuthPage() {
       setError(error.message);
       setIsLoading(false);
     } else {
-      window.location.href = '/dashboard';
+      navigate('/dashboard');
     }
   };
 
@@ -54,21 +49,19 @@ export default function AuthPage() {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          name: formData.name,
-          phone: formData.phone,
-        }),
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name,
+            phone: formData.phone,
+          },
+        },
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        setError(result.error || 'Erreur lors de la création du compte');
+      if (signUpError) {
+        setError(signUpError.message);
         setIsLoading(false);
         return;
       }
@@ -84,7 +77,7 @@ export default function AuthPage() {
         return;
       }
 
-      router.push('/dashboard');
+      navigate('/dashboard');
     } catch {
       setError('Une erreur est survenue');
       setIsLoading(false);
@@ -92,7 +85,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0f4ff] via-white to-[#e8efff] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-secondary via-background to-secondary/50 flex items-center justify-center p-4">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
@@ -104,9 +97,9 @@ export default function AuthPage() {
         transition={{ duration: 0.5 }}
         className="relative w-full max-w-md"
       >
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 border border-white/50 p-8">
+        <div className="bg-card/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 border border-border/50 p-8">
           <div className="flex justify-center mb-8">
-            <Image
+            <img
               src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/render/image/public/document-uploads/taxi-quebec-logo-removebg-preview-1-1766792742115.png?width=8000&height=8000&resize=contain"
               alt="Taxi Québec"
               width={140}
@@ -121,24 +114,24 @@ export default function AuthPage() {
               animate={{ opacity: 1 }}
               className="space-y-4"
             >
-              <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
+              <h1 className="text-2xl font-bold text-center text-foreground mb-2">
                 Bienvenue
               </h1>
-              <p className="text-center text-gray-500 mb-8">
+              <p className="text-center text-muted-foreground mb-8">
                 Sélectionnez votre type de portail
               </p>
 
               <button
                 onClick={() => setMode('login')}
-                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl p-5 flex items-center justify-between transition-all duration-300 group shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl p-5 flex items-center justify-between transition-all duration-300 group shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary-foreground/20 rounded-xl flex items-center justify-center">
                     <User className="w-6 h-6" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-lg">Portail Client</div>
-                    <div className="text-white/70 text-sm">Réservez et suivez vos courses</div>
+                    <div className="text-primary-foreground/70 text-sm">Réservez et suivez vos courses</div>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -146,15 +139,15 @@ export default function AuthPage() {
 
               <button
                 onClick={() => setMode('login')}
-                className="w-full bg-primary hover:bg-primary/90 text-white rounded-2xl p-5 flex items-center justify-between transition-all duration-300 group shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl p-5 flex items-center justify-between transition-all duration-300 group shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <Building2 className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 bg-primary-foreground/20 rounded-xl flex items-center justify-center">
+                    <Building2 className="w-6 h-6" />
                   </div>
                   <div className="text-left">
                     <div className="font-semibold text-lg">Portail Organisation</div>
-                    <div className="text-white/70 text-sm">Gérez votre flotte et vos chauffeurs</div>
+                    <div className="text-primary-foreground/70 text-sm">Gérez votre flotte et vos chauffeurs</div>
                   </div>
                 </div>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -169,63 +162,63 @@ export default function AuthPage() {
             >
               <button
                 onClick={() => setMode('select')}
-                className="flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary mb-6 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Retour
               </button>
 
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Connexion</h1>
-              <p className="text-gray-500 mb-6">Accédez à votre espace client</p>
+              <h1 className="text-2xl font-bold text-foreground mb-2">Connexion</h1>
+              <p className="text-muted-foreground mb-6">Accédez à votre espace client</p>
 
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type="email"
                     name="email"
                     placeholder="Adresse courriel"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-xl focus:border-primary focus:bg-white transition-all outline-none"
+                    className="w-full pl-12 pr-4 py-4 bg-muted border-2 border-transparent rounded-xl focus:border-primary focus:bg-background transition-all outline-none"
                     required
                   />
                 </div>
 
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="Mot de passe"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-12 py-4 bg-gray-50 border-2 border-transparent rounded-xl focus:border-primary focus:bg-white transition-all outline-none"
+                    className="w-full pl-12 pr-12 py-4 bg-muted border-2 border-transparent rounded-xl focus:border-primary focus:bg-background transition-all outline-none"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
 
                 {error && (
-                  <p className="text-red-500 text-sm text-center">{error}</p>
+                  <p className="text-destructive text-sm text-center">{error}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-4 font-semibold transition-all shadow-lg shadow-primary/20 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl py-4 font-semibold transition-all shadow-lg shadow-primary/20 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Connexion...' : 'Se connecter'}
                 </button>
               </form>
 
-              <p className="text-center text-gray-500 mt-6">
+              <p className="text-center text-muted-foreground mt-6">
                 Pas encore de compte?{' '}
                 <button
                   onClick={() => setMode('register')}
@@ -244,90 +237,90 @@ export default function AuthPage() {
             >
               <button
                 onClick={() => setMode('login')}
-                className="flex items-center gap-2 text-gray-500 hover:text-primary mb-6 transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary mb-6 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Retour
               </button>
 
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Créer un compte</h1>
-              <p className="text-gray-500 mb-6">Rejoignez Taxi Québec</p>
+              <h1 className="text-2xl font-bold text-foreground mb-2">Créer un compte</h1>
+              <p className="text-muted-foreground mb-6">Rejoignez Taxi Québec</p>
 
               <form onSubmit={handleRegister} className="space-y-4">
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type="text"
                     name="name"
                     placeholder="Nom complet"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-xl focus:border-primary focus:bg-white transition-all outline-none"
+                    className="w-full pl-12 pr-4 py-4 bg-muted border-2 border-transparent rounded-xl focus:border-primary focus:bg-background transition-all outline-none"
                     required
                   />
                 </div>
 
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type="email"
                     name="email"
                     placeholder="Adresse courriel"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-xl focus:border-primary focus:bg-white transition-all outline-none"
+                    className="w-full pl-12 pr-4 py-4 bg-muted border-2 border-transparent rounded-xl focus:border-primary focus:bg-background transition-all outline-none"
                     required
                   />
                 </div>
 
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type="tel"
                     name="phone"
                     placeholder="Numéro de téléphone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-transparent rounded-xl focus:border-primary focus:bg-white transition-all outline-none"
+                    className="w-full pl-12 pr-4 py-4 bg-muted border-2 border-transparent rounded-xl focus:border-primary focus:bg-background transition-all outline-none"
                     required
                   />
                 </div>
 
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     placeholder="Mot de passe"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-12 py-4 bg-gray-50 border-2 border-transparent rounded-xl focus:border-primary focus:bg-white transition-all outline-none"
+                    className="w-full pl-12 pr-12 py-4 bg-muted border-2 border-transparent rounded-xl focus:border-primary focus:bg-background transition-all outline-none"
                     required
                     minLength={6}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
 
                 {error && (
-                  <p className="text-red-500 text-sm text-center">{error}</p>
+                  <p className="text-destructive text-sm text-center">{error}</p>
                 )}
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-4 font-semibold transition-all shadow-lg shadow-primary/20 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl py-4 font-semibold transition-all shadow-lg shadow-primary/20 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? 'Création...' : 'Créer mon compte'}
                 </button>
               </form>
 
-              <p className="text-center text-gray-500 mt-6">
+              <p className="text-center text-muted-foreground mt-6">
                 Déjà un compte?{' '}
                 <button
                   onClick={() => setMode('login')}
@@ -340,7 +333,7 @@ export default function AuthPage() {
           )}
         </div>
 
-        <p className="text-center text-gray-400 text-sm mt-6">
+        <p className="text-center text-muted-foreground text-sm mt-6">
           © {new Date().getFullYear()} Taxi Québec. Tous droits réservés.
         </p>
       </motion.div>

@@ -34,7 +34,6 @@ const AddressSearch: React.FC<AddressSearchProps> = ({ onSelect, accessToken, pl
           options={{
             bbox: quebecBbox,
             proximity: { lng: -71.208, lat: 46.814 },
-            countries: ['ca'],
             language: 'fr,en',
             types: 'address,poi'
           }}

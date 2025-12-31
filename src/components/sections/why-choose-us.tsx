@@ -1,9 +1,6 @@
-"use client";
-
 import React from 'react';
-import Image from 'next/image';
 import { useLanguage } from '@/lib/language-context';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, type Easing } from 'framer-motion';
 
 const WhyChooseUs = () => {
     const { t } = useLanguage();
@@ -14,13 +11,13 @@ const WhyChooseUs = () => {
         animate: shouldReduceMotion ? {} : {
             x: xRange,
             y: yRange,
-            rotate: [0, 0.5, 0], // Very subtle tilt to simulate road surface
+            rotate: [0, 0.5, 0],
         },
         transition: {
             duration: duration,
             repeat: Infinity,
             repeatType: "mirror" as const,
-            ease: "easeInOut",
+            ease: "easeInOut" as Easing,
         }
     });
 
@@ -46,13 +43,12 @@ const WhyChooseUs = () => {
                   { icon: "TKqUHVJrUzMiYf8kuMvKRGEEJ9w-10.svg", label: t.whyChooseUs.payments },
                   { icon: "8W4poMSOPIrD1QByExb8OHSCvk-11.svg", label: t.whyChooseUs.availability }
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2">
+                    <div key={i} className="flex items-center gap-2">
                     <div className="w-4 h-4 relative">
-                      <Image 
+                      <img 
                         src={`https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/2f83ba8d-f0a0-4809-ab5a-731f63b1a4df-rido-template-framer-website/assets/svgs/${item.icon}`}
                         alt={item.label}
-                        fill
-                        className="object-contain brightness-0 invert"
+                        className="w-full h-full object-contain brightness-0 invert"
                       />
                     </div>
                     <span className="text-white text-[14px] md:text-[15px] font-medium">{item.label}</span>
@@ -69,12 +65,10 @@ const WhyChooseUs = () => {
                   {...animationSettings(8, [-15, 15], [-8, 8])}
                   className="absolute top-[10%] left-[5%] md:left-[10%] w-[55%] md:w-[60%] aspect-[484/348] z-10"
                 >
-                  <Image 
+                  <img 
                     src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/2f83ba8d-f0a0-4809-ab5a-731f63b1a4df-rido-template-framer-website/assets/images/McqHJQ30EVGG5zjtxjnm43714vs-3.png"
                     alt="3D White Car"
-                    fill
-                    className="object-contain"
-                    priority
+                    className="w-full h-full object-contain"
                   />
                 </motion.div>
                 
@@ -83,12 +77,10 @@ const WhyChooseUs = () => {
                   {...animationSettings(12, [20, -10], [5, -5])}
                   className="absolute bottom-[10%] right-0 w-[55%] md:w-[60%] aspect-[484/348] z-20"
                 >
-                  <Image 
+                  <img 
                     src="https://slelguoygbfzlpylpxfs.supabase.co/storage/v1/object/public/test-clones/2f83ba8d-f0a0-4809-ab5a-731f63b1a4df-rido-template-framer-website/assets/images/lOEJyirFcRcmpXOQqisihG3eXc-4.png"
                     alt="3D Black Car"
-                    fill
-                    className="object-contain"
-                    priority
+                    className="w-full h-full object-contain"
                   />
                 </motion.div>
 
