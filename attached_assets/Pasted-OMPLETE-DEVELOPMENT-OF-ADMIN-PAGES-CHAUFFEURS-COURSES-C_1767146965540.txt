@@ -1,0 +1,381 @@
+OMPLETE DEVELOPMENT OF ADMIN PAGES: CHAUFFEURS & COURSES
+
+CONTEXT: The admin dashboard has placeholder pages that need full implementation. These are critical operational pages for managing drivers and rides in the production taxi dispatch system.
+
+CURRENT STATE:
+- /admin/chauffeurs → Shows placeholder: "La gestion des chauffeurs sera bientôt disponible..."
+- /admin/courses → Shows placeholder: "Cette page est en développement..."
+
+TASK: Build out these two critical pages with full functionality.
+
+═══════════════════════════════════════════════════════════════
+PAGE 1: CHAUFFEURS (/admin/chauffeurs)
+═══════════════════════════════════════════════════════════════
+
+REQUIREMENTS:
+
+A) PAGE LAYOUT:
+* Header:
+  - Title: "Gestion des Chauffeurs"
+  - Right side: 
+    * Search bar: "Rechercher un chauffeur..." (by name, phone, license)
+    * Filter dropdown: "Tous" | "Disponible" | "En course" | "En pause" | "Hors ligne"
+    * "+ Ajouter Chauffeur" button (primary blue)
+
+B) DRIVER STATUS OVERVIEW CARDS (top of page):
+* 4 stat cards in a row:
+  1. Total Chauffeurs: [count] (all drivers)
+  2. Disponibles: [count] (green indicator)
+  3. En Course: [count] (blue indicator)
+  4. Hors Ligne: [count] (gray indicator)
+* Clean white cards with numbers (no decorative elements)
+
+C) DRIVERS TABLE/GRID VIEW:
+* Toggle view: Grid cards (default) | Table list
+* Each driver card/row displays:
+  - Driver photo (circular, placeholder if none)
+  - Name (bold)
+  - Status badge: Disponible (green) | En course (blue) | En pause (orange) | Hors ligne (gray)
+  - Taxi unit number (e.g., "Taxi #12")
+  - Phone number (with click-to-call icon)
+  - License number
+  - Quick stats:
+    * Courses aujourd'hui: [count]
+    * Revenu aujourd'hui: [amount]$
+  - Action buttons:
+    * "Voir profil" (eye icon)
+    * "Modifier" (pencil icon)
+    * "Activer/Désactiver" (toggle switch)
+
+D) DRIVER PROFILE MODAL (click "Voir profil"):
+* Tabs: Informations | Courses | Documents | Incidents
+  
+  TAB 1 - INFORMATIONS:
+  - Photo (large)
+  - Full name
+  - Email
+  - Phone (clickable)
+  - License number
+  - Assigned vehicle (unit #, plate, model)
+  - Join date
+  - Current status with manual toggle
+  - Total statistics:
+    * Total courses complétées
+    * Taux d'acceptation
+    * Revenu total généré
+    * Note moyenne (if rating system exists)
+  
+  TAB 2 - COURSES:
+  - List of all rides for this driver
+  - Columns: Date, Client, Trajet (pickup → destination), Montant, Status
+  - Filter by date range
+  - Pagination
+  
+  TAB 3 - DOCUMENTS:
+  - Driver's license:
+    * Number
+    * Expiry date (show warning if < 30 days)
+    * Upload/view image
+  - Vehicle insurance:
+    * Number
+    * Expiry date
+    * Upload/view document
+  - Vehicle inspection:
+    * Date
+    * Expiry date
+    * Upload/view certificate
+  - Other documents (field to add more)
+  
+  TAB 4 - INCIDENTS:
+  - List of all reported incidents
+  - Each incident shows:
+    * Date/time
+    * Type: Accident | Plainte | Mécanique | Autre
+    * Severity: Mineur | Modéré | Grave
+    * Description
+    * Status: En cours | Résolu
+    * Resolution notes
+  - "+ Ajouter Incident" button
+  - Form with fields above
+
+E) ADD/EDIT DRIVER MODAL:
+* Triggered by "+ Ajouter Chauffeur" or "Modifier"
+* Form fields:
+  - Photo upload (optional)
+  - Prénom *
+  - Nom *
+  - Email *
+  - Téléphone *
+  - Numéro de permis *
+  - Date d'expiration du permis *
+  - Véhicule assigné (dropdown from fleet)
+  - Status initial (Disponible by default)
+* Validation: All required fields must be filled
+* Save → Creates driver in database
+* Cancel → Closes modal
+
+F) DRIVER STATUS MANAGEMENT:
+* Toggle switch on each driver card to change status manually
+* Admin can override driver status:
+  - Set to "Hors ligne" (with reason: "Maintenance", "Fin de quart", "Autre")
+  - Set to "En pause"
+  - Set to "Disponible"
+* Real-time status updates (sync with live data)
+
+G) SEARCH & FILTER:
+* Search by: Name, phone, license number, vehicle unit
+* Filter by: Status (all, disponible, en course, en pause, hors ligne)
+* Results update in real-time
+
+H) BULK ACTIONS (future enhancement placeholder):
+* Select multiple drivers
+* Send broadcast message to selected
+* Export selected to CSV
+
+═══════════════════════════════════════════════════════════════
+PAGE 2: COURSES (/admin/courses)
+═══════════════════════════════════════════════════════════════
+
+REQUIREMENTS:
+
+A) PAGE LAYOUT:
+* Header:
+  - Title: "Gestion des Courses"
+  - Right side:
+    * Date range picker (default: Aujourd'hui)
+    * Filter dropdown: "Toutes" | "En attente" | "En cours" | "Terminées" | "Annulées"
+    * Search bar: "Rechercher..." (by client name, driver, address, ID)
+    * "Exporter CSV" button
+
+B) RIDE STATUS OVERVIEW CARDS (top of page):
+* 5 stat cards in a row:
+  1. Total Courses: [count] (all rides for selected period)
+  2. En Attente: [count] (yellow indicator) - needs driver assignment
+  3. En Cours: [count] (blue indicator) - assigned or picked up
+  4. Terminées: [count] (green indicator) - completed
+  5. Annulées: [count] (red indicator)
+* Clean white cards with numbers
+
+C) RIDES TABLE VIEW:
+* Columns:
+  - ID (e.g., "RD-8921")
+  - Date/Heure
+  - Client (name, clickable)
+  - Chauffeur (name, clickable) - "Non assigné" if pending
+  - Trajet (pickup → destination with arrow icon)
+  - Type véhicule (Berline/Van/Familiale)
+  - Montant (fare amount)
+  - Status (badge with color coding)
+  - Actions (eye icon to view details)
+
+* Status badges with colors:
+  - "En attente" (yellow/orange) - requested, not assigned
+  - "Assigné" (blue) - driver assigned, not yet picked up
+  - "En route" (blue) - driver en route to pickup
+  - "Client à bord" (purple) - picked up, heading to destination
+  - "Terminé" (green) - completed
+  - "Annulé" (red) - cancelled
+
+* Table features:
+  - Sortable columns (by date, fare, status)
+  - Pagination (20 rides per page)
+  - Real-time updates for active rides
+
+D) RIDE DETAILS MODAL (click eye icon):
+* Full ride information displayed in sections:
+  
+  SECTION 1 - OVERVIEW:
+  - Ride ID
+  - Status (large badge)
+  - Timestamps:
+    * Demandé à: [datetime]
+    * Assigné à: [datetime]
+    * Prise en charge: [datetime]
+    * Terminé à: [datetime]
+  - Duration total
+  
+  SECTION 2 - TRAJET:
+  - Map showing route (Google Maps)
+  - Pickup address (with pin)
+  - Destination address (with pin)
+  - Distance: X.X km
+  - Durée estimée: X min
+  
+  SECTION 3 - CLIENT:
+  - Name (clickable → client profile)
+  - Phone (click-to-call)
+  - Email
+  - Accessibility needs (if any): ♿ 👁️ 👂
+  - Driver notes (if any)
+  
+  SECTION 4 - CHAUFFEUR:
+  - Name (clickable → driver profile)
+  - Phone (click-to-call)
+  - Taxi unit number
+  - Vehicle type
+  - Photo
+  
+  SECTION 5 - TARIFICATION:
+  - Type de véhicule: Berline/Van/Familiale
+  - Tarif de base: X.XX$
+  - Distance (X km × X.XX$/km): X.XX$
+  - Durée (if applicable): X.XX$
+  - Suppléments (if any): X.XX$
+  - Total: XX.XX$
+  - Mode paiement: Comptant / Carte
+  - "Modifier tarif" button (for adjustments)
+  
+  SECTION 6 - ACTIONS:
+  - If status = "En attente": "Assigner chauffeur" button
+  - If status = "En cours": "Voir position en temps réel" (opens live map)
+  - "Marquer comme litigieux" toggle
+  - "Ajouter une note" text field
+  - "Annuler course" button (with confirmation)
+
+* Close button to exit modal
+
+E) RIDE ASSIGNMENT (for pending rides):
+* Click "Assigner chauffeur" button
+* Opens driver selection modal (same as dashboard assignment)
+* Shows available drivers with:
+  - Photo, name
+  - Distance from pickup
+  - ETA to pickup
+  - Vehicle type (must match requested type)
+* Select driver → "Assigner" button
+* Updates ride status to "Assigné"
+* Updates driver status to "En course"
+
+F) SEARCH & FILTER FUNCTIONALITY:
+* Search by:
+  - Ride ID
+  - Client name
+  - Driver name
+  - Pickup or destination address
+* Filter by:
+  - Status (all, en attente, en cours, terminées, annulées)
+  - Date range (today, yesterday, last 7 days, last 30 days, custom)
+  - Vehicle type (all, berline, van, familiale)
+  - Payment method (if tracked): all, comptant, carte
+* Apply filters → table updates
+* Clear filters button
+
+G) EXPORT TO CSV:
+* Click "Exporter CSV" button
+* Exports all rides matching current filters
+* CSV includes all columns: ID, Date, Client, Driver, Pickup, Destination, Vehicle Type, Fare, Status
+* Filename: `courses_[date_range].csv`
+* Download starts automatically
+
+H) REAL-TIME UPDATES:
+* Active rides (en attente, en cours) update status automatically
+* Use WebSocket or polling every 5 seconds
+* New rides appear at top of table
+* Status changes reflect immediately
+* Show live indicator (pulsing dot) for real-time data
+
+I) BULK ACTIONS:
+* Checkboxes to select multiple rides
+* Actions available:
+  - Export selected to CSV
+  - Mark as reviewed (for completed rides)
+  - Send summary to email (future)
+
+═══════════════════════════════════════════════════════════════
+SHARED COMPONENTS TO CREATE/REUSE
+═══════════════════════════════════════════════════════════════
+
+1. DRIVER CARD COMPONENT (for grid view):
+* Reusable component showing driver info
+* Used in: Chauffeurs page, driver assignment modal
+
+2. RIDE CARD/ROW COMPONENT:
+* Reusable component for ride display
+* Used in: Courses page, dashboard, driver profile
+
+3. STATUS BADGE COMPONENT:
+* Color-coded badges for statuses
+* Used throughout admin portal
+
+4. SEARCH/FILTER BAR COMPONENT:
+* Reusable search and filter UI
+* Used in multiple admin pages
+
+5. DATE RANGE PICKER:
+* Calendar component for selecting date ranges
+* Used in courses, analytics, reports
+
+═══════════════════════════════════════════════════════════════
+DATABASE REQUIREMENTS
+═══════════════════════════════════════════════════════════════
+
+Ensure these tables/columns exist:
+
+DRIVERS TABLE:
+- id, name, email, phone, license_number, license_expiry
+- status (available, busy, on_break, offline)
+- vehicle_id (foreign key)
+- photo_url, documents_urls
+- created_at, updated_at
+
+RIDES TABLE:
+- id, client_id, driver_id (nullable if not assigned)
+- pickup_address, pickup_lat, pickup_lng
+- destination_address, destination_lat, destination_lng
+- vehicle_type (sedan, van, family)
+- status (requested, assigned, en_route, picked_up, completed, cancelled)
+- fare_amount, distance_km, duration_minutes
+- requested_at, assigned_at, picked_up_at, completed_at
+- accessibility_flags, driver_notes
+- is_disputed, admin_notes
+
+INCIDENTS TABLE (for drivers):
+- id, driver_id, date, type, severity, description, status, resolution_notes
+
+DOCUMENTS TABLE (for drivers):
+- id, driver_id, type (license, insurance, inspection), number, expiry_date, file_url
+
+═══════════════════════════════════════════════════════════════
+DESIGN CONSISTENCY
+═══════════════════════════════════════════════════════════════
+
+* Use same design system as dashboard (clean, professional, minimal)
+* White cards with subtle borders
+* Blue primary color for buttons and links
+* Status colors: Green (good), Blue (active), Yellow (pending), Red (error/cancelled), Gray (inactive)
+* Consistent spacing and typography
+* Icons: Simple, monochrome (from same icon library)
+* French text throughout
+* Responsive (desktop and tablet)
+
+═══════════════════════════════════════════════════════════════
+DO NOT MODIFY
+═══════════════════════════════════════════════════════════════
+
+* Existing dashboard page
+* Authentication system
+* Database schema (only add new tables/columns if needed)
+* Other admin pages (fleet, clients, history)
+* Sidebar navigation
+
+═══════════════════════════════════════════════════════════════
+IMPLEMENTATION ORDER
+═══════════════════════════════════════════════════════════════
+
+PRIORITY 1 - COURSES PAGE (most critical for operations):
+1. Build rides table with real data
+2. Implement status filters and search
+3. Create ride details modal with map
+4. Add driver assignment functionality
+5. Real-time status updates
+6. Export CSV feature
+
+PRIORITY 2 - CHAUFFEURS PAGE:
+1. Build drivers grid/table view
+2. Status overview cards
+3. Driver profile modal with tabs
+4. Add/edit driver form
+5. Document management
+6. Incident reporting
+
+Please start with the COURSES page as it's the most critical for daily dispatch operations. Ensure all data comes from the real database and matches the existing schema.
