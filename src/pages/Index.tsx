@@ -6,9 +6,9 @@ import OurSolutions from "@/components/sections/our-solutions";
 import AppCTA from "@/components/sections/app-cta";
 import Footer from "@/components/sections/footer";
 
-export default function Home() {
+export default function Index() {
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative min-h-screen bg-background">
       <Navigation />
       <main>
         <HeroSection />
