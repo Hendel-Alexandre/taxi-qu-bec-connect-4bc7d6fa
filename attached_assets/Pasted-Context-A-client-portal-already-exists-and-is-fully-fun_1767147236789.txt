@@ -1,0 +1,227 @@
+Context
+
+A client portal already exists and is fully functional.
+Do NOT modify or rebuild the client portal.
+
+Your task is to build, unlock, and activate the Organisation (Admin) Dashboard only, using the same UI system and design language as the existing client portal.
+
+GLOBAL DESIGN & UX RULES
+
+Uber-style experience
+
+Mobile-first
+
+Clean, minimal UI
+
+No colorful cards
+
+No glow effects
+
+No oversized components
+
+Neutral colors only (white, gray, black)
+
+Same font family and spacing system as the client portal
+
+Subtle transitions only
+
+Map is the primary interface (not a background)
+
+AUTHENTICATION & ACCESS CONTROL
+Admin Access Rules (STRICT)
+
+❌ No public sign-up
+
+❌ No admin registration page
+
+❌ No multiple admin emails
+
+Single Admin Account
+
+Only this email is allowed to access the organisation dashboard:
+
+m.dardari@hotmail.com
+
+First-Time Login Flow
+
+Admin enters the email m.dardari@hotmail.com
+
+If no password exists yet:
+
+Prompt admin to create:
+
+Password
+
+Full name
+
+Phone number
+
+Save securely
+
+Redirect to the admin dashboard
+
+Subsequent Logins
+
+Email + password only
+
+Do NOT prompt for password creation again
+
+No password reset flow unless explicitly added later
+
+ADMIN DASHBOARD – CORE LAYOUT
+Map-First Dashboard
+
+Full-screen interactive Google Map
+
+Map is zoomable, pannable, and responsive
+
+Map is the main surface of the dashboard
+
+Real-Time Fleet Tracking
+
+Display all taxis and drivers on the map
+
+Track vehicles in real time using Fraxion API
+
+GPS positions
+
+Live movement
+
+Fraxion API key will be provided later
+
+Architecture must allow easy injection of the Fraxion API key
+
+Vehicles update without page reload
+
+FLEET MANAGEMENT (REQUIRED)
+Vehicles
+
+Admin can:
+
+Create, edit, and deactivate vehicles
+
+Assign vehicles to drivers
+
+Upload vehicle images
+
+View vehicle status (active, inactive, in service)
+
+Drivers
+
+Admin can:
+
+Create driver accounts
+
+Upload:
+
+Driver profile photo
+
+Driver license
+
+Required documents
+
+Assign drivers to vehicles
+
+View driver status (available, on ride, offline)
+
+USER (CLIENT) MANAGEMENT
+
+Admin must have access to client information for operational purposes:
+
+View client list
+
+Access:
+
+Full name
+
+Phone number
+
+Email address
+
+View client ride history
+
+No editing of client credentials unless explicitly allowed later
+
+RIDES & OPERATIONS
+
+All client ride requests must appear in the admin dashboard
+
+Ride statuses:
+
+Pending
+
+Assigned
+
+In progress
+
+Completed
+
+Cancelled
+
+Admin can:
+
+View ride details
+
+See pickup & dropoff on the map
+
+Assign driver / vehicle
+
+SIDEBAR & NAVIGATION
+
+Sidebar must be functional
+
+All menu items must open real pages
+
+No broken links
+
+No placeholder pages
+
+Same navigation behavior as client portal
+
+DATA & INTEGRATION RULES
+
+❌ No demo data
+
+❌ No mock data
+
+✅ Use real database data only
+
+Admin dashboard reflects live client activity
+
+All actions persist in the database
+
+MAP & TECH REQUIREMENTS
+
+Google Maps JavaScript API
+
+No legacy APIs
+
+Proper validation of coordinates before rendering markers
+
+Real-time updates for taxi positions
+
+Smooth marker movement (no jumping)
+
+FINAL REQUIREMENTS
+
+Unlock organisation portal access
+
+Ensure admin can log in successfully
+
+Dashboard must feel operational, not marketing
+
+Must look and behave like a real taxi dispatch system
+
+Deliverable
+
+A fully functional Organisation (Admin) Dashboard with:
+
+Secure admin login
+
+Live fleet map
+
+Fleet & driver management
+
+Client visibility
+
+Ride operations
